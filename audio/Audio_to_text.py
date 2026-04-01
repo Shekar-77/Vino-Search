@@ -8,7 +8,7 @@ from qdrant_client import QdrantClient, models
 
 class AudioSearchEngine:
     
-    def __init__(self,device:str, model_id="distil-whisper/distil-large-v3", save_path="./ov_distil_whisper"):
+    def __init__(self, model_id="distil-whisper/distil-large-v3", save_path="./ov_distil_whisper"):
         self.model_id = model_id
         self.save_path = save_path
         self.collection_name = "audio_search_index"
@@ -21,10 +21,10 @@ class AudioSearchEngine:
         
         self._initialize_whisper()
         self._setup_qdrant()
-        if(device == 'NPU'):
-            self.device = 'CPU'
-        else:
-            self.device = device
+        # if(device == 'NPU'):
+        #     self.device = 'CPU'
+        # else:
+        #     self.device = device
 
     def _initialize_whisper(self):
         """Loads or exports the OpenVINO Whisper model."""
@@ -35,8 +35,9 @@ class AudioSearchEngine:
             print(f"First-time setup: Exporting {self.model_id} to OpenVINO...")
             model = OVModelForSpeechSeq2Seq.from_pretrained(self.model_id, export=True, compile=False)
             model.save_pretrained(self.save_path)
-
-        model.compile(device=self.device)
+        
+        model.to("AUTO")
+        model.compile()
 
         processor = AutoProcessor.from_pretrained(self.model_id)
         self.pipe = pipeline(
