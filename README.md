@@ -72,49 +72,40 @@ Using **RAG (Retrieval Augmented Generation)**:
 
 ### 🚀 Goal
 
-To build a **fully local, privacy-preserving, multimodal AI assistant** that:
+To build a **privacy-preserving, multimodal deep search AI assistant** that:
 
-* Enhances productivity
-* Provides deep insights from personal data
-* Runs efficiently on AI-powered PCs
 VinoSearch/
 ├── audio/
-│ └── Audio_to_text.py # Audio transcription utilities
+│   ├── Audio_to_text.py              # Audio transcription utilities
+│   └── audio_retrieval.py            # Audio retrieval system
 ├── documents/
-│ └── main.py # Document processing main script
+│   └── main.py                       # Document processing main script
 ├── Images/
-│ ├── get_image_captions.py # Image captioning functionality
-│ ├── Image_embedding.py # Image embedding generation
-│ └── Image_vqa.py # Visual Question Answering (VQA)
-├── Sample_audio/ # Sample audio files
-├── Sample_documents/ # Sample documents
-│ ├── Current Essentials of Medicine(1)(1).pdf
-│ ├── doc.pdf
-│ └── KEVLAR 1.docx
-├── Sample_images/ # Sample images
-│ └── spongebob-cartoon-png-32.png
-├── Sample_video/ # Sample video files
-│ ├── new.mp4
-│ └── new2.mp4
-├── src/ # Core source code
-│ ├── audio_analysis_inference.py # Audio inference pipeline
-│ ├── document_inference.py # Document inference pipeline
-│ ├── image_inference.py # Image inference pipeline
-│ ├── inference.py # Main inference module
-│ ├── sample_inference.py # Sample inference utilities
-│ └── video_inference_sample.py # Video inference examples
-├── temp_audio/ # Temporary audio storage
+│   ├── get_image_captions.py         # Image captioning functionality
+│   ├── Image_embedding.py            # Image embedding generation
+│   └── Image_vqa.py                  # Visual Question Answering (VQA)
+├── Sample_audio/                     # Sample audio files
+├── Sample_documents/                 # Sample documents (PDF, DOCX)
+├── Sample_images/                    # Sample image files
+├── Sample_video/                     # Sample video files (new.mp4, new2.mp4)
+├── src/                              # Core source code
+│   ├── audio_analysis_inference.py   # Audio inference pipeline
+│   ├── document_inference.py         # Document inference pipeline
+│   ├── image_inference.py            # Image inference pipeline
+│   ├── inference.py                  # Main inference module
+│   ├── sample_inference.py           # Sample inference utilities
+│   └── video_inference_sample.py     # Video inference examples
+├── temp_audio/                       # Temporary audio storage
 ├── video/
-│ ├── blip_model_video_analysis.py # BLIP-based video analysis
-│ ├── smolvlm_video_analysis.py # SmolVLM-based video analysis
-│ └── Video_analysis_inference.py # Video inference pipeline
+│   ├── blip_model_video_analysis.py  # BLIP-based video analysis
+│   ├── smolvlm_video_analysis.py     # SmolVLM-based video analysis
+│   └── Video_analysis_inference.py   # Video inference pipeline
 ├── .gitignore
-├── .txt
-├── audio_retrival.py # Audio retrieval system
-├── main.py # Main application entry point
-├── requirements.txt # Python dependencies
-├── VinoSearch_sample_website.py # Web interface demo
-└── VinoSearch_incode_inference.py # In-code inference exam
+├── main.py                           # Main application entry point
+├── requirements.txt                  # Python dependencies
+├── VinoSearch_sample_website.py      # Web interface demo
+└── VinoSearch_incode_inference.py    # In-code inference example
+
 
 ## 🧠 Hardware Acceleration (CPU / GPU / NPU)
 
