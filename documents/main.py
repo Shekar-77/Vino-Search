@@ -24,8 +24,8 @@ class Document_Storage():
         self.collection_name = collection_name
         self.document_folder_path = document_folder_path
         self.client = QdrantClient(":memory:")
-        self.text_model = SentenceTransformer('all-MiniLM-L6-v2', backend="openvino",model_kwargs={"device": self.device})
-        self.clip_model = SentenceTransformer('clip-ViT-B-32', backend='openvino',model_kwargs={"device": self.device})
+        self.text_model = SentenceTransformer('all-MiniLM-L6-v2', backend="openvino",model_kwargs={"device": 'AUTO'})
+        self.clip_model = SentenceTransformer('clip-ViT-B-32', backend='openvino',model_kwargs={"device": 'AUTO'})
     
     def img_to_base64(self,pil_img):
         buffer = io.BytesIO()
@@ -98,7 +98,7 @@ class Document_Storage():
                         elif isinstance(element, PictureItem):
                             pil_image = element.get_image(result.document)
                             if pil_image:
-                                i_vec = self.image_model.encode(pil_image, normalize_embeddings=True).tolist()
+                                i_vec = self.clip_model.encode(pil_image, normalize_embeddings=True).tolist()
                                 img_array = np.array(pil_image.convert('RGB'))
                                 ocr_text = " ".join(reader.readtext(img_array, detail=0)).strip()
                                 t_vec = self.text_model.encode(ocr_text or "diagram", normalize_embeddings=True).tolist()
