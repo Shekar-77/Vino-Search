@@ -140,6 +140,9 @@ python VinoSearch_Sample_gardio_website.py
 
 Once running, the local URL (usually http://127.0.0.1:7860) will be displayed in your terminal.
 
+Note: The first run of audio pipeline will take longer when compared to others this is because the whisper flow loaded weights are saved locally.
+This was added to check how it performs in production.
+
 💻 Code-Based Inference
 To run a sample inference directly through the script:
 Sample_VinoSearch_call.py
