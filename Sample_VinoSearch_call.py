@@ -12,19 +12,19 @@ analyzer = OpencVino_DeepSearchAgent(
 # result = analyzer.analyze(
 #     modality="image", 
 #     folder_path="Sample_images", 
-#     query="What is this audio about?",
+#     query="What is this image about?",
 #     image_model = "OpenVINO/Phi-3.5-vision-instruct-int4-ov"
 #     )
 
 # result = analyzer.analyze(
 #     modality="document", 
 #     folder_path="Sample_documents", 
-#     query="What is this audio about?"
+#     query="Kevlar?"
 # )
 
 # result = analyzer.analyze(
 #     modality="audio", 
-#     folder_path="Sample_documents", 
+#     folder_path="Sample_audio", 
 #     query="What is this audio about?"
 # )
 
@@ -32,7 +32,7 @@ analyzer = OpencVino_DeepSearchAgent(
 result = analyzer.analyze(
     modality="video", 
     folder_path="Sample_video", 
-    query="What is this audio about?",
+    query="What is this video about?",
     video_model="Salesforce/blip-image-captioning-base"
 )
 
