@@ -74,7 +74,7 @@ class OpencVino_DeepSearchAgent:
 
         elif modality.lower() == 'audio':
 
-            engine = AudioSearchEngine(device = self.final_device)
+            engine = AudioSearchEngine()
             engine.process_folder(folder_path,input_type='audio')
             hits = engine.search(query)
             self.context_data = " ".join([h.payload['text'] for h in hits]) 
