@@ -1,4 +1,4 @@
-## 🧠 Vino Search
+##  Vino Search
 
 ### OpenVINO Deep Search AI Assistant on Multimodal Personal Database for AIPC
 
@@ -10,8 +10,12 @@ Deep Search, as one of the core functions of a personal AI assistant, significan
 
 <img width="896" height="466" alt="image" src="https://github.com/user-attachments/assets/537589e7-bb2f-43d6-938d-0c17ddea6d13" />
 
-###Video Example:
-https://github.com/user-attachments/assets/2fddb0c8-05d4-4d32-947d-5a9b78427c2e
+### Video Example:
+
+<video src="https://github.com" controls="controls" style="max-width: 100%;">
+</video>
+
+
 
 
 Abstract of the Solution
