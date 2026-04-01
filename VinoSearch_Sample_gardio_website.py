@@ -90,6 +90,7 @@ class DeepSearchEngine:
                 collection_name="docs",
                 document_folder_path=folder_path,
             )
+            self._pipeline.create_vector_store()
             self._pipeline.retrieval(limit=1, query="index")
 
         elif modality == "image":
