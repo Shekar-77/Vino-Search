@@ -123,6 +123,7 @@ class DeepSearchEngine:
             self._pipeline = video_inference(
                 folder_path=folder_path,
                 model=video_model or VIDEO_MODEL_MAP["blip"],
+                device="AUTO",
                 collection_name="video_inference",
             )
             self._pipeline.response()
