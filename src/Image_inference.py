@@ -9,7 +9,8 @@ response_engine = Image_vector_store(
 )
 
 # 2. Get the search points
-result = response_engine.retrieval(query="What are images about?")
+response_engine.creating_vector_store()
+result = response_engine.image_retrieval(query="What are images about?")
 print(f"The result is:{result}")
 # 3. Display the top match
 if result:
