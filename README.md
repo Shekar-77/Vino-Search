@@ -110,8 +110,8 @@ This ensures:
 * ✅ Stable execution across all devices
 
 ---
+Note: The document pipeline in the gradio sample website might end up crashing due to low memory when this happens try running Sample_VinoSearch_call.py using the same files.The inference time of document pipeline is high, mainly because the pipeline focuses on extracting every piece of data present in the documents(Would help if there was an option to decrease inference time with obvious decrease in data extraction quality). These pipelines are just a sample to help you understand what I am presenting in the best possible way. These issues will be resolved during coding phase.
 
-Reproducing and running the inference:
 
 markdown
 ## 🚀 Getting Started
@@ -158,3 +158,4 @@ You can select any of the gemma and qwen models from the official openvino huggi
 
 Running retrival inferences:
 You can run retrival inference along all pipelines to visualize the data being retrieved. You can find the code in src
+
