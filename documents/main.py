@@ -34,7 +34,14 @@ class Document_Storage():
     
     def generate_converter(self):
 
-        master_opts = PdfPipelineOptions(do_ocr=True, generate_picture_images=True)
+        master_opts = PdfPipelineOptions(
+                do_ocr=True,
+                generate_picture_images=True,
+                do_table_structure=True,
+                images_scale=1.0,          # ✅ Default is 2.0 — halving this cuts RAM by 4x
+                generate_page_images=False, # ✅ Don't store full page images in memory
+        )
+        master_opts.ocr_options = EasyOcrOptions(use_gpu=False)  
         master_opts.do_table_structure = True 
 
         converter = DocumentConverter(
@@ -48,6 +55,8 @@ class Document_Storage():
         return converter
     
     def create_vector_store(self):
+        import gc
+        import pypdf
 
         reader = easyocr.Reader(['en'])
 
@@ -55,118 +64,159 @@ class Document_Storage():
             self.client.create_collection(
                 collection_name=self.collection_name,
                 vectors_config={
-                    "text_vec": VectorParams(size=384, distance=Distance.COSINE),
-                    "image_vec": VectorParams(size=512, distance=Distance.COSINE),
-                    "table_content": VectorParams(size=384, distance=Distance.COSINE),
+                    "text_vec":        VectorParams(size=384, distance=Distance.COSINE),
+                    "image_vec":       VectorParams(size=512, distance=Distance.COSINE),
+                    "table_content":   VectorParams(size=384, distance=Distance.COSINE),
                     "formula_content": VectorParams(size=384, distance=Distance.COSINE),
-                    "code_content": VectorParams(size=384, distance=Distance.COSINE)# Dedicated Table Vector
+                    "code_content":    VectorParams(size=384, distance=Distance.COSINE),
                 }
             )
-        #Load models
-        #Load the converter
-        converter = self.generate_converter()
-        document_path = Path(self.document_folder_path)
+
+        converter     = self.generate_converter()
+        document_path = Path(self.document_folder_path).resolve()
+        CHUNK_SIZE    = 20  # pages per chunk for large PDFs
 
         for file in document_path.iterdir():
-            if file.suffix.lower() not in [".pdf", ".docx", ".doc", ".pptx", ".xlsx"]: continue
-            print(f"🚀 Indexing: {file.name}")
+            if file.suffix.lower() not in [".pdf", ".docx", ".doc", ".pptx", ".xlsx"]:
+                continue
+
+            abs_file = file.resolve()
+            print(f"🚀 Indexing: {abs_file.name}")
 
             try:
-                    result = converter.convert(file)
-                    points = []
-                    current_section = "General"
+                # ── PDFs: chunk by page range to avoid OOM ──────────────────────
+                if abs_file.suffix.lower() == ".pdf":
+                    try:
+                        with open(abs_file, "rb") as f:
+                            total_pages = len(pypdf.PdfReader(f).pages)
+                    except Exception:
+                        total_pages = 9999  # fallback — convert whole file
 
-                    for element, _level in result.document.iterate_items():
-                        # A. Track Sections
-                        if isinstance(element, SectionHeaderItem):
-                            current_section = element.text.strip()
+                    print(f"   📄 Total pages: {total_pages}, chunk size: {CHUNK_SIZE}")
 
-                        # B. Handle Tables (Using the new 'table_content' vector)
-                        elif isinstance(element, TableItem):
-                            # FIXED: Pass result.document to fix deprecation warning
-                            table_md = element.export_to_markdown(result.document)
-                            if table_md.strip():
-                                content = f"[{current_section}] Table: {table_md}"
-                                t_vec = self.text_model.encode(content, normalize_embeddings=True).tolist()
-                                points.append(PointStruct(
-                                    id=str(uuid.uuid4()),
-                                    vector={"table_content": t_vec}, # Specific vector for tables
-                                    payload={"content": table_md, "type": "table", "source": file.name, "section": current_section}
-                                ))
+                    for start in range(0, total_pages, CHUNK_SIZE):
+                        end = min(start + CHUNK_SIZE - 1, total_pages - 1)
+                        # Convert to 1-indexed for docling's page_range
+                        docling_start = start + 1
+                        docling_end = end + 1
+                        print(f"   ⚙️  Processing pages {start + 1}–{end + 1}...")
 
-                        # C. Handle Images (OCR + CLIP)
-                        elif isinstance(element, PictureItem):
-                            pil_image = element.get_image(result.document)
-                            if pil_image:
-                                i_vec = self.clip_model.encode(pil_image, normalize_embeddings=True).tolist()
-                                img_array = np.array(pil_image.convert('RGB'))
-                                ocr_text = " ".join(reader.readtext(img_array, detail=0)).strip()
-                                t_vec = self.text_model.encode(ocr_text or "diagram", normalize_embeddings=True).tolist()
+                        try:
+                            result = converter.convert(
+                                abs_file,
+                                page_range=(docling_start, docling_end),  # 1-indexed page range
+                            )
+                            points = self._extract_points(result, reader, abs_file)
 
-                                points.append(PointStruct(
-                                    id=str(uuid.uuid4()),
-                                    vector={"image_vec": i_vec, "text_vec": t_vec},
-                                    payload={"content": ocr_text, "type": "image", "source": file.name, "base64": self.img_to_base64(pil_image)}
-                                ))
+                            if points:
+                                self.client.upsert(
+                                    collection_name=self.collection_name, points=points)
+                                print(f"   ✅ Indexed {len(points)} elements "
+                                    f"from pages {start + 1}–{end + 1}")
 
-                        # D. Handle Standard Text
-                        elif isinstance(element, TextItem):
-                            txt = element.text.strip()
-                            if txt:
-                                t_vec = self.text_model.encode(f"[{current_section}] {txt}", normalize_embeddings=True).tolist()
-                                points.append(PointStruct(
-                                    id=str(uuid.uuid4()),
-                                    vector={"text_vec": t_vec},
-                                    payload={"content": txt, "type": "text", "source": file.name, "section": current_section}
-                                ))
-                        
-                        # --- Retrieve Formulas ---
-                        elif isinstance(element, FormulaItem):
-                            latex_content = element.text.strip()
-                            if latex_content:
-                                # Pre-pending "Formula:" helps the text model understand context
-                                content = f"[{current_section}] Formula: {latex_content}"
-                                f_vec = self.text_model.encode(content, normalize_embeddings=True).tolist()
-                                
-                                points.append(PointStruct(
-                                    id=str(uuid.uuid4()),
-                                    vector={"formula_content": f_vec}, # You can also use a dedicated 'formula_vec' if defined
-                                    payload={
-                                        "content": latex_content, 
-                                        "type": "formula", 
-                                        "source": file.name, 
-                                        "section": current_section
-                                    }
-                                ))
+                        except MemoryError:
+                            print(f"   ⚠️  OOM on pages {start + 1}–{end + 1}, skipping chunk")
 
-                        # --- Retrieve Code Blocks ---
-                        elif isinstance(element, CodeItem):
-                            code_text = element.text.strip()
-                            # Docling identifies the language in the 'label' or custom attributes
-                            lang = getattr(element, 'language', 'code') 
-                            
-                            if code_text:
-                                content = f"[{current_section}] Code ({lang}):\n{code_text}"
-                                c_vec = self.text_model.encode(content, normalize_embeddings=True).tolist()
-                                
-                                points.append(PointStruct(
-                                    id=str(uuid.uuid4()),
-                                    vector={"code_content": c_vec}, # Specific 'code_vec' is an option for multi-vector collections
-                                    payload={
-                                        "content": code_text, 
-                                        "type": "code", 
-                                        "language": lang,
-                                        "source": file.name, 
-                                        "section": current_section
-                                    }
-                                ))
+                        finally:
+                            gc.collect()  # free memory between chunks
 
+                # ── Other formats: convert in one shot ──────────────────────────
+                else:
+                    result = converter.convert(abs_file)
+                    points = self._extract_points(result, reader, abs_file)
                     if points:
-                        self.client.upsert(collection_name=self.collection_name, points=points)
+                        self.client.upsert(
+                            collection_name=self.collection_name, points=points)
                         print(f"✅ Indexed {len(points)} elements.")
 
             except Exception as e:
-                    print(f"❌ Failed {file.name}: {e}")
+                print(f"❌ Failed {abs_file.name}: {e}")
+
+            finally:
+                gc.collect()  # free memory between files
+
+
+    def _extract_points(self, result, reader, abs_file: Path) -> list:
+        """Extract PointStructs from a docling ConversionResult."""
+        points          = []
+        current_section = "General"
+
+        for element, _level in result.document.iterate_items():
+
+            # A. Section headers — update running context
+            if isinstance(element, SectionHeaderItem):
+                current_section = element.text.strip()
+
+            # B. Tables
+            elif isinstance(element, TableItem):
+                table_md = element.export_to_markdown(result.document)
+                if table_md.strip():
+                    content = f"[{current_section}] Table: {table_md}"
+                    t_vec   = self.text_model.encode(content, normalize_embeddings=True).tolist()
+                    points.append(PointStruct(
+                        id=str(uuid.uuid4()),
+                        vector={"table_content": t_vec},
+                        payload={"content": table_md, "type": "table",
+                                "source": abs_file.name, "section": current_section}
+                    ))
+
+            # C. Images — CLIP + EasyOCR
+            elif isinstance(element, PictureItem):
+                pil_image = element.get_image(result.document)
+                if pil_image:
+                    i_vec     = self.clip_model.encode(pil_image, normalize_embeddings=True).tolist()
+                    img_array = np.array(pil_image.convert('RGB'))
+                    ocr_text  = " ".join(reader.readtext(img_array, detail=0)).strip()
+                    t_vec     = self.text_model.encode(
+                        ocr_text or "diagram", normalize_embeddings=True).tolist()
+                    points.append(PointStruct(
+                        id=str(uuid.uuid4()),
+                        vector={"image_vec": i_vec, "text_vec": t_vec},
+                        payload={"content": ocr_text, "type": "image",
+                                "source": abs_file.name, "base64": self.img_to_base64(pil_image)}
+                    ))
+
+            # D. Plain text
+            elif isinstance(element, TextItem):
+                txt = element.text.strip()
+                if txt:
+                    t_vec = self.text_model.encode(
+                        f"[{current_section}] {txt}", normalize_embeddings=True).tolist()
+                    points.append(PointStruct(
+                        id=str(uuid.uuid4()),
+                        vector={"text_vec": t_vec},
+                        payload={"content": txt, "type": "text",
+                                "source": abs_file.name, "section": current_section}
+                    ))
+
+            # E. Formulas
+            elif isinstance(element, FormulaItem):
+                latex = element.text.strip()
+                if latex:
+                    f_vec = self.text_model.encode(
+                        f"[{current_section}] Formula: {latex}", normalize_embeddings=True).tolist()
+                    points.append(PointStruct(
+                        id=str(uuid.uuid4()),
+                        vector={"formula_content": f_vec},
+                        payload={"content": latex, "type": "formula",
+                                "source": abs_file.name, "section": current_section}
+                    ))
+
+            # F. Code blocks
+            elif isinstance(element, CodeItem):
+                code = element.text.strip()
+                lang = getattr(element, 'language', 'code')
+                if code:
+                    c_vec = self.text_model.encode(
+                        f"[{current_section}] Code ({lang}):\n{code}",
+                        normalize_embeddings=True).tolist()
+                    points.append(PointStruct(
+                        id=str(uuid.uuid4()),
+                        vector={"code_content": c_vec},
+                        payload={"content": code, "type": "code", "language": lang,
+                                "source": abs_file.name, "section": current_section}
+                    ))
+        return points
 
 
     def retrieval(self,limit,query:str):
