@@ -4,71 +4,34 @@
 
 ### 📌 Overview
 
-**Vino Search** is a desktop-based AI assistant designed to enable **deep search over a localized multimodal personal knowledge base**. It leverages **OpenVINO** and **Retrieval Augmented Generation (RAG)** to provide intelligent, secure, and personalized information retrieval directly on AI PCs.
+Vino Search
+OpenVINO Deep Search AI Assistant on Multimodal Personal Database for AIPC
+Deep Search, as one of the core functions of a personal AI assistant, significantly enhances the user experience by providing information extraction capabilities for various file types (such as Word, PowerPoint, PDF, images, and videos) and supporting multi-dimensional information queries. The localized personal knowledge base not only improves the accuracy and relevance of answers but also protects data security and provides personalized search results based on the user's private data. This project aims to develop a desktop AI localized personal knowledge base search assistant for AI PCs. By building a multimodal personal database and using Retrieval Augmented Generation (RAG) technology, this project leverages this private multimodal data to enhance local large language models (LLMs). Users can interact with the OpenVINO instant messaging AI assistant, ask questions, and perform fuzzy searches using multimodal data.
 
----
-
-### 💡 Proposed Solution
-
-Vino Search a **multimodal personal database** and integrates it with a **local LLM** to enable deep, context-aware querying.
 <img width="896" height="466" alt="image" src="https://github.com/user-attachments/assets/537589e7-bb2f-43d6-938d-0c17ddea6d13" />
 
-The system supports:
+###Video Example:
+https://github.com/user-attachments/assets/2fddb0c8-05d4-4d32-947d-5a9b78427c2e
 
-* 📄 Documents
-* 🖼️ Images
-* 🎥 Videos
 
-Using **RAG (Retrieval Augmented Generation)**:
+Abstract of the Solution
 
-* Relevant data is retrieved from the local database
-* The LLM generates responses grounded in user-specific content
+1. VinoSearch is a multimodal retrieval system designed for audio, document, image, and video understanding.  
+2. It uses **Qdrant** as the vector database to store embeddings with a strong focus on privacy and local execution.  
+3. The system currently uses memory-based storage, with future support planned for Docker and persistent storage.  
+4. Lightweight and efficient embedding models such as **MiniLM** and **CLIP** are used for fast semantic retrieval.  
+5. OpenVINO integration enables optimized inference on CPU, GPU, and NPU for supported models.  
+6. The document pipeline leverages **Docling** to extract text, tables, images, and structured content from files.  
+7. Each data type (text, tables, images) is embedded separately to improve retrieval accuracy and structure.  
+8. Queries are processed using **multi-vector search** across text, table, and image embeddings.  
+9. Results are fused using **Reciprocal Rank Fusion (RRF)** to ensure high-quality retrieval across modalities.  
+10. The image pipeline converts images into semantic captions using vision-language models (VLMs).  
+11. Caption embeddings are stored to enable natural language querying of visual content.  
+12. The audio pipeline uses **Whisper models** to convert speech into text for semantic indexing.  
+13. Video analysis is performed by combining visual captions and audio transcripts at chunk level.  
+14. The system supports flexible model selection including **Gemma and Qwen-based LLMs** via Hugging Face.  
+15. VinoSearch provides a unified, scalable, and privacy-preserving multimodal search experience across all data types.
 
----
-
-### ⚙️ Key Features
-
-* 🔍 **Deep Search Capability**
-  Perform semantic and fuzzy searches across personal data
-
-* 🧠 **Multimodal Understanding**
-  Extract and analyze information from text, images, and videos
-
-* 🔒 **Privacy-Focused**
-  All processing happens locally on the user's device
-
-* ⚡ **Optimized with OpenVINO**
-  Efficient inference on AI PCs with hardware acceleration
-
-* 💬 **Interactive AI Assistant**
-  Chat-based interface for natural interaction
-
----
-
-### 🏗️ System Workflow
-
-1. **Data Ingestion**
-
-   * User uploads or indexes local files
-   * Files are processed into embeddings
-
-2. **Multimodal Database Creation**
-
-   * Text, image, and video data stored in a unified format
-
-3. **Query Processing**
-
-   * User asks a question via chat interface
-
-4. **Retrieval (RAG)**
-
-   * Relevant data is fetched from the database
-
-5. **Response Generation**
-
-   * Local LLM generates a contextual, accurate response
-
----
 
 ### 🚀 Goal
 
