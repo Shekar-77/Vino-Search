@@ -8,29 +8,14 @@
 
 ---
 
-### 🎯 Problem Statement
-
-Modern AI assistants often rely heavily on cloud-based data, which leads to:
-
-* Limited personalization
-* Privacy concerns
-* Inability to deeply search personal files
-
-Users need a system that can:
-
-* Understand and search **private, local data**
-* Work across **multiple file formats**
-* Provide **context-aware and accurate responses**
-
----
-
 ### 💡 Proposed Solution
 
-Vino Search builds a **multimodal personal database** and integrates it with a **local LLM** to enable deep, context-aware querying.
+Vino Search a **multimodal personal database** and integrates it with a **local LLM** to enable deep, context-aware querying.
+<img width="896" height="466" alt="image" src="https://github.com/user-attachments/assets/537589e7-bb2f-43d6-938d-0c17ddea6d13" />
 
 The system supports:
 
-* 📄 Documents: Word, PDF, PowerPoint
+* 📄 Documents
 * 🖼️ Images
 * 🎥 Videos
 
@@ -92,46 +77,44 @@ To build a **fully local, privacy-preserving, multimodal AI assistant** that:
 * Enhances productivity
 * Provides deep insights from personal data
 * Runs efficiently on AI-powered PCs
-
-**Current Directory**
+VinoSearch/
 ├── audio/
-│   └── Audio_to_text.py
+│ └── Audio_to_text.py # Audio transcription utilities
 ├── documents/
-│   └── main.py
+│ └── main.py # Document processing main script
 ├── Images/
-│   ├── get_image_captions.py
-│   ├── Image_embedding.py
-│   └── Image_vqa.py
-├── Sample_audio/
-├── Sample_documents/
-│   ├── Current Essentials of Medicine(1)(1).pdf
-│   ├── doc.pdf
-│   └── KEVLAR 1.docx
-├── Sample_images/
-│   └── spongebob-cartoon-png-32.png
-├── Sample_video/
-│   ├── new.mp4
-│   └── new2.mp4
-├── src/
-│   ├── audio_analysis_inference.py
-│   ├── document_inference.py
-│   ├── image_inference.py
-│   ├── inference.py
-│   ├── sample_inference.py
-│   └── video_inference_sample.py
-├── temp_audio/
-├── video/
-│   ├── blip_model_video_analysis.py
-│   ├── smolvlm_video_analysis.py
-│   └── Video_analysis_inference.py
+│ ├── get_image_captions.py # Image captioning functionality
+│ ├── Image_embedding.py # Image embedding generation
+│ └── Image_vqa.py # Visual Question Answering for images
+├── Sample_audio/ # Sample audio files
+├── Sample_documents/ # Sample documents
+│ ├── Current Essentials of Medicine(1)(1).pdf
+│ ├── doc.pdf
+│ └── KEVLAR 1.docx
+├── Sample_images/ # Sample images
+│ └── spongebob-cartoon-png-32.png
+├── Sample_video/ # Sample video files
+│ ├── new.mp4
+│ └── new2.mp4
+├── src/ # Core source code
+│ ├── audio_analysis_inference.py # Audio analysis inference
+│ ├── document_inference.py # Document processing inference
+│ ├── image_inference.py # Image processing inference
+│ ├── inference.py # Main inference module
+│ ├── sample_inference.py # Sample inference utilities
+│ └── video_inference_sample.py # Video inference samples
+├── temp_audio/ # Temporary audio storage
+├── video/ # Video processing modules
+│ ├── blip_model_video_analysis.py # BLIP model for video analysis
+│ ├── smolvlm_video_analysis.py # SmolVLM video analysis
+│ └── Video_analysis_inference.py # Video inference pipeline
 ├── .gitignore
 ├── .txt
-├── audio_retrival.py
-├── main.py
-└── requirements.txt
-|__ VinoSearch_sample_website.py
-|__ VinoSearch_incode_inference.py
-
+├── audio_retrival.py # Audio retrieval system
+├── main.py # Main application entry point
+├── requirements.txt # Python dependencies
+├── VinoSearch_sample_website.py # Web interface demo
+└── VinoSearch_incode_inference.py # In-code inference examples
 
 ## 🧠 Hardware Acceleration (CPU / GPU / NPU)
 
