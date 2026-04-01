@@ -6,12 +6,10 @@ def play_top_result(results):
     if not results:
         print("No results to play.")
         return
-
-    # ---- GET TOP RESULT ----
-    top_result = results[0].payload
+    top_result = results[0]  # Already a dict, NOT an object
 
     video_path = top_result.get("video_path")
-    start_time = top_result.get("start_time")
+    start_time = top_result.get("start_time", 0)
     end_time = top_result.get("end_time")
 
     if not video_path:
@@ -22,11 +20,11 @@ def play_top_result(results):
     print(f"Video: {video_path}")
     print(f"Start Time: {start_time}s → {end_time}s")
 
-    # ---- PLAY VIDEO FROM TIMESTAMP ----
     cmd = f'ffplay -ss {start_time} "{video_path}"'
     os.system(cmd)
 
-engine = video_inference(folder_path='Sample_video',model='blip' ,collection_name='video_inference')
+engine = video_inference(folder_path='Sample_video',model='Salesforce/blip-image-captioning-base' ,device='cpu', collection_name='video_inference')
 engine.response()
 context_data = engine.retrival(query="What is the video about? ")
+print(context_data)
 play_top_result(results = context_data)
