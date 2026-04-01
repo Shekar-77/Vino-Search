@@ -119,7 +119,7 @@ Follow these steps to set up the environment and run the project locally.
 ### 1️⃣ Clone the Repository
 ```bash
 git clone https://github.com/Shekar-77/Vino-Search
-cd VinoSearch
+cd Vino-Search
 
 2️⃣ Environment Setup
 We recommend using Conda with Python 3.12 for the best compatibility with OpenVINO and PyTorch.
@@ -130,18 +130,17 @@ conda activate vinosearch
 3️⃣ Install Dependencies
 
 pip install -r requirements.txt
-Use code with caution.
 
 🛠️ How to Run
 🌐 Web Interface (Gradio)
 To launch the interactive web dashboard, run:
-python VinoSearch_sample_website.py
+python VinoSearch_Sample_gardio_website.py
 
 Once running, the local URL (usually http://127.0.0.1:7860) will be displayed in your terminal.
 
 💻 Code-Based Inference
 To run a sample inference directly through the script:
-python VinoSearch_Sample_Run.py
+Sample_VinoSearch_call.py
 
 
 analyzer = OpencVino_DeepSearchAgent(
