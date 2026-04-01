@@ -139,9 +139,10 @@ To launch the interactive web dashboard, run:
 python VinoSearch_Sample_gardio_website.py
 
 Once running, the local URL (usually http://127.0.0.1:7860) will be displayed in your terminal.
-
+```
 Note: The first run of audio pipeline will take longer when compared to others this is because the whisper flow loaded weights are saved locally.
-This was added to check how it performs in production.
+This was added to check how it performs in production. Image pipeline contains larger better captioning models when compared to video pipeline for the same reason.
+These will be resolved during the development time.
 
 💻 Code-Based Inference
 To run a sample inference directly through the script:
