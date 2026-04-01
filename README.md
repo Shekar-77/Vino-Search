@@ -12,10 +12,8 @@ Deep Search, as one of the core functions of a personal AI assistant, significan
 
 ### Video Example:
 
-<video src="https://github.com" controls="controls" style="max-width: 100%;">
+<video src="https://github.com/user-attachments/assets/2fddb0c8-05d4-4d32-947d-5a9b78427c2e" controls="controls" style="max-width: 100%;">
 </video>
-
-
 
 
 Abstract of the Solution
