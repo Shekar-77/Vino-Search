@@ -85,7 +85,7 @@ VinoSearch/
 ├── Images/
 │ ├── get_image_captions.py # Image captioning functionality
 │ ├── Image_embedding.py # Image embedding generation
-│ └── Image_vqa.py # Visual Question Answering for images
+│ └── Image_vqa.py # Visual Question Answering (VQA)
 ├── Sample_audio/ # Sample audio files
 ├── Sample_documents/ # Sample documents
 │ ├── Current Essentials of Medicine(1)(1).pdf
@@ -97,16 +97,16 @@ VinoSearch/
 │ ├── new.mp4
 │ └── new2.mp4
 ├── src/ # Core source code
-│ ├── audio_analysis_inference.py # Audio analysis inference
-│ ├── document_inference.py # Document processing inference
-│ ├── image_inference.py # Image processing inference
+│ ├── audio_analysis_inference.py # Audio inference pipeline
+│ ├── document_inference.py # Document inference pipeline
+│ ├── image_inference.py # Image inference pipeline
 │ ├── inference.py # Main inference module
 │ ├── sample_inference.py # Sample inference utilities
-│ └── video_inference_sample.py # Video inference samples
+│ └── video_inference_sample.py # Video inference examples
 ├── temp_audio/ # Temporary audio storage
-├── video/ # Video processing modules
-│ ├── blip_model_video_analysis.py # BLIP model for video analysis
-│ ├── smolvlm_video_analysis.py # SmolVLM video analysis
+├── video/
+│ ├── blip_model_video_analysis.py # BLIP-based video analysis
+│ ├── smolvlm_video_analysis.py # SmolVLM-based video analysis
 │ └── Video_analysis_inference.py # Video inference pipeline
 ├── .gitignore
 ├── .txt
@@ -114,7 +114,7 @@ VinoSearch/
 ├── main.py # Main application entry point
 ├── requirements.txt # Python dependencies
 ├── VinoSearch_sample_website.py # Web interface demo
-└── VinoSearch_incode_inference.py # In-code inference examples
+└── VinoSearch_incode_inference.py # In-code inference exam
 
 ## 🧠 Hardware Acceleration (CPU / GPU / NPU)
 
