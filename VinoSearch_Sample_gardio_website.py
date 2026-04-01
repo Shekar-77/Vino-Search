@@ -3,6 +3,8 @@ import shutil
 import gradio as gr
 import torch
 import openvino as ov
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
 
 # ── Model registry ─────────────────────────────────────────────────────────────
 MODEL_MAP = {
@@ -60,6 +62,16 @@ class DeepSearchEngine:
             model_id, device=self.device, trust_remote_code=True,
             ov_config={"PERFORMANCE_HINT": "LATENCY"},
         )
+        # model_id = "Qwen/Qwen2.5-1.5B-Instruct"
+
+        # self.tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+
+        # self.model = AutoModelForCausalLM.from_pretrained(
+        #     model_id,
+        #     device_map="auto",   # or "cpu" if needed
+        #     torch_dtype="auto",
+        #     trust_remote_code=True
+        # )
 
         self._pipeline  = None
         self._modality  = None
@@ -91,21 +103,19 @@ class DeepSearchEngine:
                 document_folder_path=folder_path,
             )
             self._pipeline.create_vector_store()
-            self._pipeline.retrieval(limit=1, query="index")
 
         elif modality == "image":
-            from Images.Image import Image_vector_store
+            from Images.Image_vqa import Image_vector_store
             self._pipeline = Image_vector_store(
                 collection_name="image_search",
                 folder_path=folder_path,
-                device=self.device,
                 model=image_model or IMAGE_MODEL_MAP["phi"],
             )
             self._pipeline.creating_vector_store()
 
         elif modality == "audio":
             from audio.Audio_to_text import AudioSearchEngine
-            self._pipeline = AudioSearchEngine(device=self.device)
+            self._pipeline = AudioSearchEngine()
             self._pipeline.process_folder(folder_path, input_type="audio")
 
         elif modality == "video":
@@ -113,7 +123,6 @@ class DeepSearchEngine:
             self._pipeline = video_inference(
                 folder_path=folder_path,
                 model=video_model or VIDEO_MODEL_MAP["blip"],
-                device=self.device,
                 collection_name="video_inference",
             )
             self._pipeline.response()
@@ -325,16 +334,10 @@ def clear_chat(session):
 # ══════════════════════════════════════════════════════════════════════════════
 # CSS — Clean, professional, well-organized Gradio layout with better visibility
 # ══════════════════════════════════════════════════════════════════════════════
-# ══════════════════════════════════════════════════════════════════════════════
-# CSS — Clean professional dark UI with proper text visibility
-# ══════════════════════════════════════════════════════════════════════════════
-# ══════════════════════════════════════════════════════════════════════════════
-# CSS — Clean professional dark UI with black text for model responses
-# ══════════════════════════════════════════════════════════════════════════════
 CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* ── Color Variables with proper contrast ── */
+/* ── Color Variables with better contrast ── */
 :root {
     --primary: #667eea;
     --primary-dark: #5a67d8;
@@ -344,34 +347,20 @@ CSS = """
     --warning: #f59e0b;
     --danger: #ef4444;
     
-    /* Light mode colors for better visibility */
+    /* Light mode - High contrast */
     --bg-page: #f8fafc;
     --bg-card: #ffffff;
     --bg-input: #ffffff;
-    --text-primary: #1e293b;
+    --text-primary: #0f172a;
     --text-secondary: #334155;
+    --text-tertiary: #475569;
     --text-muted: #64748b;
     --border-light: #e2e8f0;
     --border-medium: #cbd5e1;
     --hover-bg: #f1f5f9;
 }
 
-/* Dark mode support - automatically applied based on system preference */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-page: #0f172a;
-        --bg-card: #1e293b;
-        --bg-input: #1e293b;
-        --text-primary: #f1f5f9;
-        --text-secondary: #cbd5e6;
-        --text-muted: #94a3b8;
-        --border-light: #334155;
-        --border-medium: #475569;
-        --hover-bg: #334155;
-    }
-}
-
-/* Ensure all text is visible in both light and dark modes */
+/* ── Global Reset & Base ── */
 * {
     margin: 0;
     padding: 0;
@@ -394,72 +383,7 @@ body {
     background: var(--bg-page) !important;
 }
 
-/* Force all text to be visible */
-.gr-box, .gr-panel, .gr-form, .gr-group, 
-.gr-markdown, .gr-text, .gr-label, .gr-form-label {
-    color: var(--text-primary) !important;
-}
-
-/* Headers should be clearly visible */
-h1, h2, h3, h4, h5, h6, 
-.markdown-text h1, .gr-markdown h1,
-.markdown-text h2, .gr-markdown h2,
-.markdown-text h3, .gr-markdown h3 {
-    color: var(--text-primary) !important;
-    font-weight: 600 !important;
-}
-
-/* Paragraphs and general text */
-p, span, div, .gr-text p, .gr-markdown p {
-    color: var(--text-secondary) !important;
-}
-
-/* Labels - make them visible */
-label, .gr-label, .gr-form-label {
-    font-size: 0.75rem !important;
-    font-weight: 600 !important;
-    color: var(--text-muted) !important;
-    margin-bottom: 0.5rem !important;
-    display: block !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-}
-
-/* Input Fields - ensure text is visible */
-input[type="text"], 
-input[type="number"], 
-textarea,
-.gr-textarea textarea,
-select,
-.gr-dropdown select {
-    background: var(--bg-input) !important;
-    border: 1px solid var(--border-light) !important;
-    border-radius: 8px !important;
-    padding: 0.625rem 0.75rem !important;
-    font-size: 0.875rem !important;
-    font-family: 'Inter', sans-serif !important;
-    color: var(--text-primary) !important;
-}
-
-input::placeholder,
-textarea::placeholder {
-    color: var(--text-muted) !important;
-}
-
-input:focus,
-textarea:focus {
-    border-color: var(--primary) !important;
-    outline: none !important;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-}
-
-/* Dropdown options visibility */
-.gr-dropdown select option {
-    color: var(--text-primary) !important;
-    background: var(--bg-card) !important;
-}
-
-/* ── Header Styling with visible text ── */
+/* ── Header ── */
 .app-header {
     background: var(--bg-card);
     border-radius: 16px;
@@ -495,7 +419,17 @@ textarea:focus {
 .app-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--text-primary) !important;
+    color: black !important;
+    background: white !important;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.app-title span {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    color: black !important;
 }
 
 .app-subtitle {
@@ -537,6 +471,24 @@ textarea:focus {
 @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* ── Markdown Styling for visibility ── */
+.markdown-text, .gr-markdown, .prose {
+    color: var(--text-primary) !important;
+}
+
+.markdown-text h1, .gr-markdown h1,
+.markdown-text h2, .gr-markdown h2,
+.markdown-text h3, .gr-markdown h3 {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.markdown-text p, .gr-markdown p {
+    color: var(--text-secondary) !important;
+    line-height: 1.6 !important;
 }
 
 /* ── Mode Selector Styling ── */
@@ -590,19 +542,91 @@ textarea:focus {
     display: none !important;
 }
 
-/* ── Sidebar Components with visible text ── */
-.sidebar-card {
+/* ── Sidebar Components ── */
+:root {
+    --bg-card: #000000;
+    --border-light: #222222;
+    --text-light: #ffffff;
+}
+
+.sidebar-card, .gr-form, .gr-box {
     background: var(--bg-card) !important;
     border-radius: 12px !important;
     border: 1px solid var(--border-light) !important;
     padding: 1rem !important;
     margin-bottom: 1rem !important;
+    color: var(--text-light) !important;
 }
 
+/* Title styling */
 .sidebar-card-title {
-    color: var(--text-primary) !important;
+    color: var(--text-light);
     font-weight: 600;
-    margin-bottom: 0.5rem;
+}
+
+/* Radio buttons */
+.gr-radio label {
+    color: var(--text-light) !important;
+}
+
+/* Optional: hover effect for nicer UI */
+.gr-radio input:checked + span {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+/* Form Labels - Make them visible */
+label, .gr-form label, .gr-label {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    color: var(--text-secondary) !important;
+    margin-bottom: 0.5rem !important;
+    display: block !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Input Fields */
+input[type="text"], 
+input[type="number"], 
+textarea,
+.gr-textarea textarea {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 8px !important;
+    padding: 0.625rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    font-family: 'Inter', sans-serif !important;
+    color: var(--text-primary) !important;
+    transition: all 0.15s !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--primary) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Dropdowns */
+.gr-dropdown select,
+.gr-dropdown .wrap-inner {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem !important;
+    font-size: 0.875rem !important;
+    color: var(--text-primary) !important;
+}
+
+.gr-dropdown select option {
+    color: var(--text-primary) !important;
+    background: var(--bg-card) !important;
 }
 
 /* File Upload */
@@ -614,6 +638,7 @@ textarea:focus {
     text-align: center !important;
     cursor: pointer !important;
     transition: all 0.15s !important;
+    color: var(--text-secondary) !important;
 }
 
 .gr-file:hover {
@@ -621,9 +646,9 @@ textarea:focus {
     background: var(--hover-bg) !important;
 }
 
-.gr-file .file-name {
+/* File list display */
+.gr-file .file-list {
     color: var(--text-primary) !important;
-    font-weight: 500 !important;
 }
 
 /* Accordion */
@@ -647,7 +672,12 @@ textarea:focus {
 
 .accordion .accordion-content {
     background: var(--bg-card) !important;
-    padding: 1rem !important;
+    color: var(--text-primary) !important;
+}
+
+/* Slider */
+input[type=range] {
+    accent-color: var(--primary) !important;
 }
 
 /* ── Buttons ── */
@@ -725,7 +755,7 @@ textarea:focus {
     font-weight: 500 !important;
 }
 
-/* ── Chatbot with BLACK TEXT for model responses ── */
+/* ── Chatbot ── */
 #chatbot {
     background: var(--bg-card) !important;
     border-radius: 12px !important;
@@ -737,7 +767,7 @@ textarea:focus {
     background: var(--bg-card) !important;
 }
 
-/* User Message - Keep as is */
+/* User Message */
 #chatbot .message.user {
     margin-bottom: 1rem !important;
 }
@@ -751,66 +781,39 @@ textarea:focus {
     margin-left: auto !important;
 }
 
-/* Assistant Message - FORCE BLACK TEXT for model responses */
+/* Assistant Message */
 #chatbot .message.bot {
     margin-bottom: 1rem !important;
 }
 
 #chatbot .message.bot > div {
-    background: #f0f0f0 !important;  /* Light gray background for contrast */
-    border: 1px solid #e0e0e0 !important;
+    background: var(--hover-bg) !important;
+    border: 1px solid var(--border-light) !important;
     border-radius: 12px 12px 12px 4px !important;
     padding: 0.75rem 1rem !important;
     max-width: 80% !important;
+    color: var(--text-primary) !important;
 }
 
-/* Force ALL text in model responses to be BLACK */
-#chatbot .message.bot,
-#chatbot .message.bot *,
 #chatbot .message.bot p,
-#chatbot .message.bot div,
-#chatbot .message.bot span,
-#chatbot .message.bot h1,
-#chatbot .message.bot h2,
-#chatbot .message.bot h3,
-#chatbot .message.bot h4,
-#chatbot .message.bot h5,
-#chatbot .message.bot h6,
-#chatbot .message.bot strong,
-#chatbot .message.bot em,
-#chatbot .message.bot li,
-#chatbot .message.bot a,
-#chatbot .message.bot code,
-#chatbot .message.bot pre {
-    color: #000000 !important;  /* Pure black text */
+#chatbot .message.bot div {
+    color: var(--text-primary) !important;
 }
 
-/* Keep code blocks readable with black text */
 #chatbot .message.bot code {
-    background: #e8e8e8 !important;
+    background: var(--border-light) !important;
     padding: 0.125rem 0.25rem !important;
     border-radius: 4px !important;
     font-family: 'JetBrains Mono', monospace !important;
-    color: #000000 !important;
+    color: var(--text-primary) !important;
 }
 
 #chatbot .message.bot pre {
-    background: #e8e8e8 !important;
-    color: #000000 !important;
+    background: var(--text-primary) !important;
+    color: var(--bg-card) !important;
     padding: 0.75rem !important;
     border-radius: 8px !important;
     overflow-x: auto !important;
-}
-
-#chatbot .message.bot pre code {
-    background: transparent !important;
-    color: #000000 !important;
-}
-
-/* Links in bot messages */
-#chatbot .message.bot a {
-    color: #0066cc !important;  /* Blue links for visibility, but not black */
-    text-decoration: underline !important;
 }
 
 /* Chat Input */
@@ -825,6 +828,11 @@ textarea:focus {
 
 #msg-input textarea::placeholder {
     color: var(--text-muted) !important;
+}
+
+#msg-input textarea:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
 }
 
 /* ── Scrollbar ── */
@@ -878,6 +886,25 @@ footer {
     }
 }
 
+/* ── Ensure all text is visible ── */
+.gr-box, .gr-panel, .gr-form, .gr-group {
+    color: var(--text-primary) !important;
+}
+
+.gr-box span, .gr-panel span, .gr-form span {
+    color: inherit !important;
+}
+
+.gr-form .gr-form-label {
+    color: var(--text-secondary) !important;
+}
+
+/* File names in upload zone */
+.gr-file .file-name {
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+}
+
 /* Info text */
 .info-text, .help-text {
     color: var(--text-muted) !important;
@@ -885,9 +912,8 @@ footer {
 }
 """
 
-# Simplified theme - let CSS handle most styling
 THEME = gr.themes.Base(
-    font=[gr.themes.GoogleFont("Inter"), "sans-serif"],
+    font=[gr.themes.GoogleFont("Sora"), "sans-serif"],
     font_mono=[gr.themes.GoogleFont("JetBrains Mono"), "monospace"],
     primary_hue=gr.themes.colors.blue,
     neutral_hue=gr.themes.colors.slate,
@@ -901,9 +927,6 @@ THEME = gr.themes.Base(
     button_primary_background_fill="linear-gradient(135deg, #4299e1, #63b3ed)",
     button_primary_text_color="#0b0f1a"
 )
-
-
-
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Build UI
