@@ -7,7 +7,6 @@
 Vino Search
 OpenVINO Deep Search AI Assistant on Multimodal Personal Database for AIPC
 Deep Search, as one of the core functions of a personal AI assistant, significantly enhances the user experience by providing information extraction capabilities for various file types (such as Word, PowerPoint, PDF, images, and videos) and supporting multi-dimensional information queries. The localized personal knowledge base not only improves the accuracy and relevance of answers but also protects data security and provides personalized search results based on the user's private data. This project aims to develop a desktop AI localized personal knowledge base search assistant for AI PCs. By building a multimodal personal database and using Retrieval Augmented Generation (RAG) technology, this project leverages this private multimodal data to enhance local large language models (LLMs). Users can interact with the OpenVINO instant messaging AI assistant, ask questions, and perform fuzzy searches using multimodal data.
-Note: Current document pipeline code crashes when there are large number of images in the file due to low ram. This is a shortcoming and will be worked on during the coding phase 1.
 
 <img width="896" height="466" alt="image" src="https://github.com/user-attachments/assets/537589e7-bb2f-43d6-938d-0c17ddea6d13" />
 
