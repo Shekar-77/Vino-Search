@@ -118,7 +118,7 @@ Follow these steps to set up the environment and run the project locally.
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/Shekar-77
+git clone https:/github.com/Shekar-77
 cd VinoSearch
 
 2️⃣ Environment Setup
