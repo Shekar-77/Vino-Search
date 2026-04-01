@@ -74,37 +74,8 @@ Using **RAG (Retrieval Augmented Generation)**:
 
 To build a **privacy-preserving, multimodal deep search AI assistant** that:
 
-VinoSearch/
-├── audio/
-│   ├── Audio_to_text.py              # Audio transcription utilities
-│   └── audio_retrieval.py            # Audio retrieval system
-├── documents/
-│   └── main.py                       # Document processing main script
-├── Images/
-│   ├── get_image_captions.py         # Image captioning functionality
-│   ├── Image_embedding.py            # Image embedding generation
-│   └── Image_vqa.py                  # Visual Question Answering (VQA)
-├── Sample_audio/                     # Sample audio files
-├── Sample_documents/                 # Sample documents (PDF, DOCX)
-├── Sample_images/                    # Sample image files
-├── Sample_video/                     # Sample video files (new.mp4, new2.mp4)
-├── src/                              # Core source code
-│   ├── audio_analysis_inference.py   # Audio inference pipeline
-│   ├── document_inference.py         # Document inference pipeline
-│   ├── image_inference.py            # Image inference pipeline
-│   ├── inference.py                  # Main inference module
-│   ├── sample_inference.py           # Sample inference utilities
-│   └── video_inference_sample.py     # Video inference examples
-├── temp_audio/                       # Temporary audio storage
-├── video/
-│   ├── blip_model_video_analysis.py  # BLIP-based video analysis
-│   ├── smolvlm_video_analysis.py     # SmolVLM-based video analysis
-│   └── Video_analysis_inference.py   # Video inference pipeline
-├── .gitignore
-├── main.py                           # Main application entry point
-├── requirements.txt                  # Python dependencies
-├── VinoSearch_sample_website.py      # Web interface demo
-└── VinoSearch_incode_inference.py    # In-code inference example
+<img width="570" height="650" alt="image" src="https://github.com/user-attachments/assets/ab3ee7fe-c9c4-4590-b4a1-5f4addd92fb3" />
+
 
 
 ## 🧠 Hardware Acceleration (CPU / GPU / NPU)
