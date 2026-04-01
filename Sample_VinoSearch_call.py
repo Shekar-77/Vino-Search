@@ -19,7 +19,7 @@ analyzer = OpencVino_DeepSearchAgent(
 # result = analyzer.analyze(
 #     modality="document", 
 #     folder_path="Sample_documents", 
-#     query="Kevlar?"
+#     query="What is this document about?"
 # )
 
 # result = analyzer.analyze(
