@@ -325,10 +325,16 @@ def clear_chat(session):
 # ══════════════════════════════════════════════════════════════════════════════
 # CSS — Clean, professional, well-organized Gradio layout with better visibility
 # ══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# CSS — Clean professional dark UI with proper text visibility
+# ══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# CSS — Clean professional dark UI with black text for model responses
+# ══════════════════════════════════════════════════════════════════════════════
 CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* ── Color Variables with better contrast ── */
+/* ── Color Variables with proper contrast ── */
 :root {
     --primary: #667eea;
     --primary-dark: #5a67d8;
@@ -338,20 +344,34 @@ CSS = """
     --warning: #f59e0b;
     --danger: #ef4444;
     
-    /* Light mode - High contrast */
+    /* Light mode colors for better visibility */
     --bg-page: #f8fafc;
     --bg-card: #ffffff;
     --bg-input: #ffffff;
-    --text-primary: #0f172a;
+    --text-primary: #1e293b;
     --text-secondary: #334155;
-    --text-tertiary: #475569;
     --text-muted: #64748b;
     --border-light: #e2e8f0;
     --border-medium: #cbd5e1;
     --hover-bg: #f1f5f9;
 }
 
-/* ── Global Reset & Base ── */
+/* Dark mode support - automatically applied based on system preference */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-page: #0f172a;
+        --bg-card: #1e293b;
+        --bg-input: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e6;
+        --text-muted: #94a3b8;
+        --border-light: #334155;
+        --border-medium: #475569;
+        --hover-bg: #334155;
+    }
+}
+
+/* Ensure all text is visible in both light and dark modes */
 * {
     margin: 0;
     padding: 0;
@@ -374,7 +394,72 @@ body {
     background: var(--bg-page) !important;
 }
 
-/* ── Header ── */
+/* Force all text to be visible */
+.gr-box, .gr-panel, .gr-form, .gr-group, 
+.gr-markdown, .gr-text, .gr-label, .gr-form-label {
+    color: var(--text-primary) !important;
+}
+
+/* Headers should be clearly visible */
+h1, h2, h3, h4, h5, h6, 
+.markdown-text h1, .gr-markdown h1,
+.markdown-text h2, .gr-markdown h2,
+.markdown-text h3, .gr-markdown h3 {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+}
+
+/* Paragraphs and general text */
+p, span, div, .gr-text p, .gr-markdown p {
+    color: var(--text-secondary) !important;
+}
+
+/* Labels - make them visible */
+label, .gr-label, .gr-form-label {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    color: var(--text-muted) !important;
+    margin-bottom: 0.5rem !important;
+    display: block !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Input Fields - ensure text is visible */
+input[type="text"], 
+input[type="number"], 
+textarea,
+.gr-textarea textarea,
+select,
+.gr-dropdown select {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 8px !important;
+    padding: 0.625rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    font-family: 'Inter', sans-serif !important;
+    color: var(--text-primary) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--primary) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Dropdown options visibility */
+.gr-dropdown select option {
+    color: var(--text-primary) !important;
+    background: var(--bg-card) !important;
+}
+
+/* ── Header Styling with visible text ── */
 .app-header {
     background: var(--bg-card);
     border-radius: 16px;
@@ -410,17 +495,7 @@ body {
 .app-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: black !important;
-    background: white !important;
-    padding: 6px 10px;
-    border-radius: 6px;
-}
-
-.app-title span {
-    background: none !important;
-    -webkit-background-clip: unset !important;
-    background-clip: unset !important;
-    color: black !important;
+    color: var(--text-primary) !important;
 }
 
 .app-subtitle {
@@ -462,24 +537,6 @@ body {
 @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(1.2); }
-}
-
-/* ── Markdown Styling for visibility ── */
-.markdown-text, .gr-markdown, .prose {
-    color: var(--text-primary) !important;
-}
-
-.markdown-text h1, .gr-markdown h1,
-.markdown-text h2, .gr-markdown h2,
-.markdown-text h3, .gr-markdown h3 {
-    color: var(--text-primary) !important;
-    font-weight: 600 !important;
-    margin-bottom: 0.5rem !important;
-}
-
-.markdown-text p, .gr-markdown p {
-    color: var(--text-secondary) !important;
-    line-height: 1.6 !important;
 }
 
 /* ── Mode Selector Styling ── */
@@ -533,91 +590,19 @@ body {
     display: none !important;
 }
 
-/* ── Sidebar Components ── */
-:root {
-    --bg-card: #000000;
-    --border-light: #222222;
-    --text-light: #ffffff;
-}
-
-.sidebar-card, .gr-form, .gr-box {
+/* ── Sidebar Components with visible text ── */
+.sidebar-card {
     background: var(--bg-card) !important;
     border-radius: 12px !important;
     border: 1px solid var(--border-light) !important;
     padding: 1rem !important;
     margin-bottom: 1rem !important;
-    color: var(--text-light) !important;
 }
 
-/* Title styling */
 .sidebar-card-title {
-    color: var(--text-light);
+    color: var(--text-primary) !important;
     font-weight: 600;
-}
-
-/* Radio buttons */
-.gr-radio label {
-    color: var(--text-light) !important;
-}
-
-/* Optional: hover effect for nicer UI */
-.gr-radio input:checked + span {
-    color: #ffffff !important;
-    font-weight: 500;
-}
-
-/* Form Labels - Make them visible */
-label, .gr-form label, .gr-label {
-    font-size: 0.75rem !important;
-    font-weight: 600 !important;
-    color: var(--text-secondary) !important;
-    margin-bottom: 0.5rem !important;
-    display: block !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-}
-
-/* Input Fields */
-input[type="text"], 
-input[type="number"], 
-textarea,
-.gr-textarea textarea {
-    background: var(--bg-input) !important;
-    border: 1px solid var(--border-light) !important;
-    border-radius: 8px !important;
-    padding: 0.625rem 0.75rem !important;
-    font-size: 0.875rem !important;
-    font-family: 'Inter', sans-serif !important;
-    color: var(--text-primary) !important;
-    transition: all 0.15s !important;
-}
-
-input::placeholder,
-textarea::placeholder {
-    color: var(--text-muted) !important;
-}
-
-input:focus,
-textarea:focus {
-    border-color: var(--primary) !important;
-    outline: none !important;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-}
-
-/* Dropdowns */
-.gr-dropdown select,
-.gr-dropdown .wrap-inner {
-    background: var(--bg-input) !important;
-    border: 1px solid var(--border-light) !important;
-    border-radius: 8px !important;
-    padding: 0.5rem !important;
-    font-size: 0.875rem !important;
-    color: var(--text-primary) !important;
-}
-
-.gr-dropdown select option {
-    color: var(--text-primary) !important;
-    background: var(--bg-card) !important;
+    margin-bottom: 0.5rem;
 }
 
 /* File Upload */
@@ -629,7 +614,6 @@ textarea:focus {
     text-align: center !important;
     cursor: pointer !important;
     transition: all 0.15s !important;
-    color: var(--text-secondary) !important;
 }
 
 .gr-file:hover {
@@ -637,9 +621,9 @@ textarea:focus {
     background: var(--hover-bg) !important;
 }
 
-/* File list display */
-.gr-file .file-list {
+.gr-file .file-name {
     color: var(--text-primary) !important;
+    font-weight: 500 !important;
 }
 
 /* Accordion */
@@ -663,12 +647,7 @@ textarea:focus {
 
 .accordion .accordion-content {
     background: var(--bg-card) !important;
-    color: var(--text-primary) !important;
-}
-
-/* Slider */
-input[type=range] {
-    accent-color: var(--primary) !important;
+    padding: 1rem !important;
 }
 
 /* ── Buttons ── */
@@ -746,7 +725,7 @@ input[type=range] {
     font-weight: 500 !important;
 }
 
-/* ── Chatbot ── */
+/* ── Chatbot with BLACK TEXT for model responses ── */
 #chatbot {
     background: var(--bg-card) !important;
     border-radius: 12px !important;
@@ -758,7 +737,7 @@ input[type=range] {
     background: var(--bg-card) !important;
 }
 
-/* User Message */
+/* User Message - Keep as is */
 #chatbot .message.user {
     margin-bottom: 1rem !important;
 }
@@ -772,39 +751,66 @@ input[type=range] {
     margin-left: auto !important;
 }
 
-/* Assistant Message */
+/* Assistant Message - FORCE BLACK TEXT for model responses */
 #chatbot .message.bot {
     margin-bottom: 1rem !important;
 }
 
 #chatbot .message.bot > div {
-    background: var(--hover-bg) !important;
-    border: 1px solid var(--border-light) !important;
+    background: #f0f0f0 !important;  /* Light gray background for contrast */
+    border: 1px solid #e0e0e0 !important;
     border-radius: 12px 12px 12px 4px !important;
     padding: 0.75rem 1rem !important;
     max-width: 80% !important;
-    color: var(--text-primary) !important;
 }
 
+/* Force ALL text in model responses to be BLACK */
+#chatbot .message.bot,
+#chatbot .message.bot *,
 #chatbot .message.bot p,
-#chatbot .message.bot div {
-    color: var(--text-primary) !important;
+#chatbot .message.bot div,
+#chatbot .message.bot span,
+#chatbot .message.bot h1,
+#chatbot .message.bot h2,
+#chatbot .message.bot h3,
+#chatbot .message.bot h4,
+#chatbot .message.bot h5,
+#chatbot .message.bot h6,
+#chatbot .message.bot strong,
+#chatbot .message.bot em,
+#chatbot .message.bot li,
+#chatbot .message.bot a,
+#chatbot .message.bot code,
+#chatbot .message.bot pre {
+    color: #000000 !important;  /* Pure black text */
 }
 
+/* Keep code blocks readable with black text */
 #chatbot .message.bot code {
-    background: var(--border-light) !important;
+    background: #e8e8e8 !important;
     padding: 0.125rem 0.25rem !important;
     border-radius: 4px !important;
     font-family: 'JetBrains Mono', monospace !important;
-    color: var(--text-primary) !important;
+    color: #000000 !important;
 }
 
 #chatbot .message.bot pre {
-    background: var(--text-primary) !important;
-    color: var(--bg-card) !important;
+    background: #e8e8e8 !important;
+    color: #000000 !important;
     padding: 0.75rem !important;
     border-radius: 8px !important;
     overflow-x: auto !important;
+}
+
+#chatbot .message.bot pre code {
+    background: transparent !important;
+    color: #000000 !important;
+}
+
+/* Links in bot messages */
+#chatbot .message.bot a {
+    color: #0066cc !important;  /* Blue links for visibility, but not black */
+    text-decoration: underline !important;
 }
 
 /* Chat Input */
@@ -819,11 +825,6 @@ input[type=range] {
 
 #msg-input textarea::placeholder {
     color: var(--text-muted) !important;
-}
-
-#msg-input textarea:focus {
-    border-color: var(--primary) !important;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
 }
 
 /* ── Scrollbar ── */
@@ -877,25 +878,6 @@ footer {
     }
 }
 
-/* ── Ensure all text is visible ── */
-.gr-box, .gr-panel, .gr-form, .gr-group {
-    color: var(--text-primary) !important;
-}
-
-.gr-box span, .gr-panel span, .gr-form span {
-    color: inherit !important;
-}
-
-.gr-form .gr-form-label {
-    color: var(--text-secondary) !important;
-}
-
-/* File names in upload zone */
-.gr-file .file-name {
-    color: var(--text-primary) !important;
-    font-weight: 500 !important;
-}
-
 /* Info text */
 .info-text, .help-text {
     color: var(--text-muted) !important;
@@ -903,8 +885,9 @@ footer {
 }
 """
 
+# Simplified theme - let CSS handle most styling
 THEME = gr.themes.Base(
-    font=[gr.themes.GoogleFont("Sora"), "sans-serif"],
+    font=[gr.themes.GoogleFont("Inter"), "sans-serif"],
     font_mono=[gr.themes.GoogleFont("JetBrains Mono"), "monospace"],
     primary_hue=gr.themes.colors.blue,
     neutral_hue=gr.themes.colors.slate,
@@ -918,6 +901,9 @@ THEME = gr.themes.Base(
     button_primary_background_fill="linear-gradient(135deg, #4299e1, #63b3ed)",
     button_primary_text_color="#0b0f1a"
 )
+
+
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Build UI
