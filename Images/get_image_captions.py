@@ -4,13 +4,13 @@ from PIL import Image
 from pathlib import Path
 from PIL import Image 
 from optimum.intel.openvino import OVModelForVisualCausalLM
-from transformers import AutoProcessor, TextStreamer, AutoTokenizer
+from transformers import AutoProcessor, TextStreamer
 from pathlib import Path
+import openvino_genai as ov_genai
+import openvino as ov
+import numpy as np
+from Images.blip_weights.main import Blip_model_captioning
 
-
-
-# Fetch `notebook_utils` module
-import requests
 
 class get_image_caption():
     
@@ -22,28 +22,22 @@ class get_image_caption():
         self.load_model() 
     
     def load_model(self):
-        if  self.model_name == "OpenVINO/Phi-3.5-vision-instruct-int4-ov":
-            self.processor = AutoProcessor.from_pretrained(
-                self.model_name, trust_remote_code=True
-            )
 
-            self.model = OVModelForVisualCausalLM.from_pretrained(
-                self.model_name,
-                device=self.device,   # 🔥 key fix
-                trust_remote_code=True
-            )
+        if  self.model_name == "blip-ov":
 
-        elif self.model_name == "OpenVINO/InternVL2-1B-int4-ov":
+            self.ov_model, self.processor = Blip_model_captioning(device = self.device).load_pipe()
+            raw_image = Image.open("Sample_images/image_c33ecd5f.png").convert("RGB")
+            inputs = self.processor(raw_image, "Describe the image?", return_tensors="pt")
+            self.ov_model.generate_answer(**inputs, max_new_tokens=1) # Warming up the hardware on any image
 
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_name, trust_remote_code=True
-            )
 
-            self.model = OVModelForVisualCausalLM.from_pretrained(
-                self.model_name,
-                device=self.device,   # 🔥 key fix
-                trust_remote_code=True
-            )
+        elif self.model_name == "InternVL2-1B-int4-ov":
+
+            self.model = ov_genai.VLMPipeline(self.model_name, self.device)
+            raw_image = Image.open("Sample_images/spongebob-cartoon-png-32.png").convert("RGB").resize((448, 448))
+            image_data = np.array(raw_image)[None] # Add batch dimension [1, H, W, 3]
+            image_tensor = ov.Tensor(image_data)
+            self.model.generate(self.question, images=[image_tensor], max_new_tokens=1)
 
         else:
             raise ValueError(f"Unsupported model: {self.model_name}")
@@ -60,57 +54,26 @@ class get_image_caption():
                     # Do something with the image
                     print(f"Opened: {file_path.name} | Size: {img.size}")
                     # img.show() # Uncomment to physically open the system viewer
-                    if self.model_name=="OpenVINO/Phi-3.5-vision-instruct-int4-ov" :
-                            
-                            inputs = self.model.preprocess_inputs(text=self.question, image=img, processor=self.processor)
+                    if self.model_name == "blip-ov" :
+                        raw_image = img.convert("RGB")
+                        inputs = self.processor(raw_image, "Describe the image?", return_tensors="pt")
+                        out = self.ov_model.generate_answer(**inputs, max_length=20)
+                        token_ids = np.array(out).flatten().tolist()
+                        response_text = self.processor.decode(token_ids, skip_special_tokens=True)
+                        caption.append([response_text,str(file_path)])
 
-                            generation_args = { 
-                                "max_new_tokens": 50, 
-                                "temperature": 0.0, 
-                                "do_sample": False,
-                                "streamer": TextStreamer(self.processor.tokenizer, skip_prompt=True, skip_special_tokens=True)
-                            } 
+                    elif self.model_name == 'InternVL2-1B-int4-ov':
 
-                            generate_ids = self.model.generate(**inputs, 
-                            eos_token_id=self.processor.tokenizer.eos_token_id, 
-                            **generation_args
-                            )
+                        raw_image = img.convert("RGB").resize((448, 448))
+                        image_data = np.array(raw_image)[None] # Add batch dimension [1, H, W, 3]
+                        image_tensor = ov.Tensor(image_data)
 
-                            generate_ids = generate_ids[:, inputs['input_ids'].shape[1]:]
-                            response = self.processor.batch_decode(generate_ids, 
-                            skip_special_tokens=True, 
-                            clean_up_tokenization_spaces=False)[0]
-                            caption.append((response, str(file_path))) 
-
-                    elif self.model_name == 'OpenVINO/InternVL2-1B-int4-ov':
-
-                        caption = []
-
-                        prompt = "Describe the image."
-
-                        inputs = self.model.preprocess_inputs(
-                            text=prompt,
-                            image=img,
-                            tokenizer=self.tokenizer,
-                            config=self.model.config
-                        )
-
-                        generation_args = {
-                            "max_new_tokens": 100
-                        }
-
-                        generated_ids = self.model.generate(**inputs, **generation_args)
-
-                        generated_ids = generated_ids[:, inputs["input_ids"].shape[1]:]
-
-                        output_text = self.tokenizer.batch_decode(
-                            generated_ids,
-                            skip_special_tokens=True
-                        )[0]
-
-                        caption.append([output_text,str(file_path)])
+                        output_text = self.model.generate(self.question, images=[image_tensor], max_new_tokens=150)
+                        response_text = output_text.texts[0]
+                        caption.append([response_text,str(file_path)])
                     
                     else:
+
                         raise(f"The model:{self.model} is not available pleese select either of the given two options")
     
         return caption

@@ -32,6 +32,7 @@ class Image_vector_store():
         return reponse
     
     def creating_vector_store(self):
+
         collection_name = self.collection_name
 
         self.client.create_collection(
@@ -48,6 +49,7 @@ class Image_vector_store():
             },
         )
         captions = self.get_caption()
+        print(f'The captions are:{captions}')
 
 # 👇 returns (image_embeddings, image_paths)
         image_embeddings, self.clip_model = get_image_embeddings(folder_path=self.folder_path)

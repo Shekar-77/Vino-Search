@@ -34,7 +34,6 @@ decorator==5.2.1
 defusedxml==0.7.1
 Deprecated==1.2.18
 deprecation==2.1.0
-diffusers==0.37.0.dev0
 dill==0.3.8
 dirtyjson==1.0.8
 distro==1.9.0
